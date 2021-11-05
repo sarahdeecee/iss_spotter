@@ -1,20 +1,14 @@
 //require and run our main fetch function
-const { fetchMyIP, fetchCoordsByIP } = require('./iss');
+const { nextISSTimesForMyLocation } = require('./iss');
 
-fetchMyIP((error, ip) => {
+nextISSTimesForMyLocation((error, flyoverTimes) => {
   if (error) {
-    console.log("It didn't work!" , error);
-    return;
+    return console.log("It didn't work!", error);
   }
-
-  console.log('It worked! Returned IP:' , ip);
+  // success, print out the deets!
+  for (let flyover of flyoverTimes) {
+    let date = new Date(flyover.risetime * 1000);
+    let seconds = flyover.duration;
+    console.log(`Next pass at ${date} for ${seconds} seconds!`);
+  }
 });
-// const myIP = '';
-// fetchCoordsByIP(myIP, (error, data) => {
-//   if (error) {
-//     console.log("It didn't work!" , error);
-//     return;
-//   }
-
-//   console.log(data);
-// });

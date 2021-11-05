@@ -19,7 +19,7 @@ const fetchCoordsByIP = (ip, callback) => {
     if (error) {
       return callback(error, null);
     } else if (response.statusCode !== 200) {
-      callback(Error(`Status Code ${response.statusCode} when fetching IP: ${body}`), null);
+      callback(Error(`Status Code ${response.statusCode} when fetching coordinates: ${body}`), null);
       return;
     }
     const lat = JSON.parse(body).latitude;
@@ -29,4 +29,39 @@ const fetchCoordsByIP = (ip, callback) => {
   });
 };
 
-module.exports = { fetchMyIP, fetchCoordsByIP };
+const fetchISSFlyOverTimes = function(coords, callback) {
+  request(`https://iss-pass.herokuapp.com/json/?lat=${coords.latitude}&lon=${coords.longitude}`, (error, response, body) => {
+    if (error) {
+      return callback(error, null);
+    } else if (response.statusCode !== 200) {
+      callback(Error(`Status Code ${response.statusCode} when fetching ISS flyover times: ${body}`), null);
+      return;
+    }
+    const data = JSON.parse(body).response;
+    callback(null, data);
+  });
+};
+
+const nextISSTimesForMyLocation = function(callback) {
+  fetchMyIP((error, ip) => {
+    if (error) {
+      return callback(error, null);
+    }
+    //ip
+    fetchCoordsByIP(ip, (error, coords) => {
+      if (error) {
+        return callback(error, null);
+      }
+      //coords
+      fetchISSFlyOverTimes(coords, (error, data) => {
+        if (error) {
+          return callback(error, null);
+        }
+        //data
+        callback(null, data);
+      });
+    });
+  });
+};
+
+module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes, nextISSTimesForMyLocation };
