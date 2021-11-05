@@ -17,8 +17,22 @@ const fetchISSFlyOverTimes = (body) => {
   return request(`https://iss-pass.herokuapp.com/json/?lat=${coords.latitude}&lon=${coords.longitude}`);
 }
 
-const nextISSTimesForMyLocation = (body) => {
-
+const printFlyOverTimes = (body) => {
+  let data = JSON.parse(body);
+  let flyoverTimes = data.response;
+  for (let flyover of flyoverTimes) {
+    let date = new Date(flyover.risetime * 1000);
+    let seconds = flyover.duration;
+    console.log(`Next pass at ${date} for ${seconds} seconds!`);
+  }
 }
 
-module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes, nextISSTimesForMyLocation };
+const nextISSTimesForMyLocation = () => {
+  return fetchMyIP()
+    .then(fetchCoordsByIP)
+    .then(fetchISSFlyOverTimes)
+    .then(printFlyOverTimes)
+    .catch((error) => console.log(error.message));
+}
+
+module.exports = { nextISSTimesForMyLocation };
